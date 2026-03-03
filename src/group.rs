@@ -48,6 +48,9 @@ pub struct WaitGroup(#[debug("done: {}", _0.is_done())] WaitGroupWrapper<TwinRef
 
 /// WaitGroup with a single non-clonable group token.
 ///
+/// This variant is optimized for scenarios where there is exactly one worker
+/// task, and the group token cannot be cloned.
+///
 /// # Cancellation safety
 ///
 /// This future is cancellation safe.
@@ -77,6 +80,10 @@ pub struct WaitGroup(#[debug("done: {}", _0.is_done())] WaitGroupWrapper<TwinRef
 pub struct MonoWaitGroup(#[debug("done: {}", _0.is_done())] WaitGroupWrapper<TwinRef<MonoLayout>>);
 
 /// Clonable group token.
+///
+/// Used by [`WaitGroup`] to signal task completion. Can be cloned and
+/// distributed among multiple worker tasks. Dropping or releasing all tokens
+/// completes the associated [`WaitGroup`].
 #[must_use]
 #[derive(Clone, Debug)]
 pub struct GroupToken(
@@ -86,26 +93,22 @@ pub struct GroupToken(
 );
 
 /// Non-clonable group token.
+///
+/// Used by [`MonoWaitGroup`] for a single worker task. Dropping or releasing
+/// this token completes the associated [`MonoWaitGroup`].
 #[must_use]
 #[derive(Debug)]
 pub struct MonoGroupToken(#[debug("done: {}", _0.is_done())] TwinRef<MonoLayout>);
 
-/// Factory of `GroupToken`.
+/// Factory of [`GroupToken`].
+///
+/// Provides methods to obtain or scope the clonable token for distribution.
 #[must_use]
 #[derive(Debug, Into)]
 pub struct GroupTokenFactory(GroupToken);
 
 impl WaitGroup {
-    /// Creates a new `WaitGroup` and a `GroupTokenFactory`.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use compact_waitgroup::WaitGroup;
-    ///
-    /// let (wg, factory) = WaitGroup::new();
-    /// // ... distribute token with factory ...
-    /// ```
+    /// Creates a new `WaitGroup` and a [`GroupTokenFactory`].
     pub fn new() -> (Self, GroupTokenFactory) {
         let inner = SharedLayout::new();
         let (wg, token) = TwinRef::new_clonable(inner);
@@ -117,19 +120,7 @@ impl WaitGroup {
 
     /// Checks if the `WaitGroup` has completed.
     ///
-    /// This returns `true` if all `GroupToken`s have been dropped.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use compact_waitgroup::WaitGroup;
-    ///
-    /// let (wg, token) = WaitGroup::new();
-    /// assert!(!wg.is_done());
-    ///
-    /// drop(token);
-    /// assert!(wg.is_done());
-    /// ```
+    /// This returns `true` if all [`GroupToken`]s have been dropped.
     #[inline]
     pub fn is_done(&self) -> bool {
         self.0.is_done()
@@ -137,18 +128,7 @@ impl WaitGroup {
 }
 
 impl MonoWaitGroup {
-    /// Creates a new `MonoWaitGroup` and a single `MonoGroupToken`.
-    ///
-    /// This variant is optimized for scenarios where there is exactly one
-    /// worker task. The token cannot be cloned.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use compact_waitgroup::MonoWaitGroup;
-    ///
-    /// let (wg, token) = MonoWaitGroup::new();
-    /// ```
+    /// Creates a new `MonoWaitGroup` and a single [`MonoGroupToken`].
     pub fn new() -> (Self, MonoGroupToken) {
         let inner = MonoLayout::new();
         let (wg, token) = TwinRef::new_mono(inner);
@@ -157,19 +137,7 @@ impl MonoWaitGroup {
 
     /// Checks if the `MonoWaitGroup` has completed.
     ///
-    /// This returns `true` if the `MonoGroupToken` has been dropped.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use compact_waitgroup::MonoWaitGroup;
-    ///
-    /// let (wg, token) = MonoWaitGroup::new();
-    /// assert!(!wg.is_done());
-    ///
-    /// drop(token);
-    /// assert!(wg.is_done());
-    /// ```
+    /// This returns `true` if the [`MonoGroupToken`] has been dropped.
     #[inline]
     pub fn is_done(&self) -> bool {
         self.0.is_done()
@@ -203,11 +171,13 @@ impl GroupTokenFactory {
         drop(self);
     }
 
+    /// Extracts the inner [`GroupToken`].
     #[inline]
     pub fn into_token(self) -> GroupToken {
         self.0
     }
 
+    /// Executes a closure with the inner [`GroupToken`].
     #[inline]
     pub fn scope<T, F: FnOnce(GroupToken) -> T>(self, func: F) -> T {
         func(self.into_token())
@@ -233,11 +203,17 @@ impl MonoGroupToken {
         drop(self);
     }
 
+    /// Returns the token itself.
+    ///
+    /// Provided for API consistency with [`GroupTokenFactory`].
     #[inline]
     pub fn into_token(self) -> Self {
         self
     }
 
+    /// Executes a closure with the token itself.
+    ///
+    /// Provided for API consistency with [`GroupTokenFactory`].
     #[inline]
     pub fn scope<T, F: FnOnce(MonoGroupToken) -> T>(self, func: F) -> T {
         func(self.into_token())

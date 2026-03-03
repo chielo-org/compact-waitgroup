@@ -9,15 +9,18 @@
 //! ## [`MonoWaitGroup`]
 //!
 //! ```rust
-//! # use compact_waitgroup::MonoWaitGroup;
-//! # futures_executor::block_on(async {
+//! use compact_waitgroup::MonoWaitGroup;
+//!
 //! let (wg, token) = MonoWaitGroup::new();
 //! assert!(!wg.is_done());
+//!
 //! std::thread::spawn(move || {
 //!     // Long-running task
 //!     token.release();
 //! });
+//!
 //! // Wait for the task to complete
+//! # futures_executor::block_on(async {
 //! wg.await;
 //! # });
 //! ```
@@ -25,12 +28,12 @@
 //! ## [`WaitGroup`]
 //!
 //! ```rust
-//! # use compact_waitgroup::WaitGroup;
-//! # futures_executor::block_on(async {
+//! use compact_waitgroup::WaitGroup;
+//!
 //! let (wg, factory) = WaitGroup::new();
+//!
 //! factory.scope(|token| {
 //!     let token_cloned = token.clone();
-//!     assert!(!wg.is_done());
 //!     std::thread::spawn(move || {
 //!         // Long-running task
 //!         token_cloned.release();
@@ -40,7 +43,9 @@
 //!         token.release();
 //!     });
 //! });
+//!
 //! // Wait for all tasks to complete
+//! # futures_executor::block_on(async {
 //! wg.await;
 //! # });
 //! ```
@@ -48,22 +53,25 @@
 //! ## With `async` Runtime
 //!
 //! ```rust
-//! # use core::{iter::repeat_n, mem::drop as spawn, time::Duration};
-//! # use compact_waitgroup::{GroupTokenExt, WaitGroup};
+//! # let spawn = |_| {};
 //! # let sleep = |_| async {};
-//! # futures_executor::block_on(async {
+//!
+//! use compact_waitgroup::{GroupTokenExt, WaitGroup};
+//!
 //! let (wg, factory) = WaitGroup::new();
-//! for (i, token) in repeat_n(factory.into_token(), 8).enumerate() {
+//!
+//! for (i, token) in std::iter::repeat_n(factory.into_token(), 8).enumerate() {
 //!     let task = async move {
 //!         println!("Task {i} started");
 //!         // Long-running task...
-//!         sleep(Duration::from_secs(1)).await;
+//!         sleep(std::time::Duration::from_secs(1)).await;
 //!         println!("Task {i} finished");
-//!     }
-//!     .release_on_ready(token);
-//!     spawn(task);
+//!     };
+//!     spawn(task.release_on_ready(token));
 //! }
+//!
 //! // Wait for all tasks to complete
+//! # futures_executor::block_on(async {
 //! wg.await;
 //! # });
 //! ```
@@ -84,8 +92,8 @@
 //!
 //! | Component           | Default (64-bit) | With `compact-mono` | Saving      |
 //! | ------------------- | ---------------- | ------------------- | ----------- |
-//! | **`WaitGroup`**     | 32 bytes         | 32 bytes            | 0 bytes     |
-//! | **`MonoWaitGroup`** | **32 bytes**     | **24 bytes**        | **8 bytes** |
+//! | **[`WaitGroup`]**     | 32 bytes         | 32 bytes            | 0 bytes     |
+//! | **[`MonoWaitGroup`]** | **32 bytes**     | **24 bytes**        | **8 bytes** |
 #![no_std]
 extern crate alloc;
 
@@ -97,8 +105,8 @@ mod twin_ref;
 mod utils;
 
 pub use crate::{
-    ext::{GroupTokenExt, GroupTokenReleaseOnDrop, GroupTokenReleaseOnReady},
-    group::{GroupToken, MonoGroupToken, MonoWaitGroup, WaitGroup},
+    ext::{GroupTokenExt, GroupTokenFuncExt, GroupTokenReleaseOnDrop, GroupTokenReleaseOnReady},
+    group::{GroupToken, GroupTokenFactory, MonoGroupToken, MonoWaitGroup, WaitGroup},
 };
 
 #[cfg(test)]

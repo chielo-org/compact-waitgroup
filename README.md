@@ -23,18 +23,18 @@ use compact_waitgroup::MonoWaitGroup;
 use futures_executor::block_on;
 
 fn main() {
+    let (wg, token) = MonoWaitGroup::new();
+
+    thread::spawn(move || {
+        println!("Worker started");
+        // Long-running task...
+        thread::sleep(Duration::from_secs(1));
+        println!("Worker finished");
+        // Token is released here, signaling completion
+        token.release();
+    });
+
     block_on(async {
-        let (wg, token) = MonoWaitGroup::new();
-
-        thread::spawn(move || {
-            println!("Worker started");
-            // Long-running task...
-            thread::sleep(Duration::from_secs(1));
-            println!("Worker finished");
-            // Token is dropped here, signaling completion
-            token.release();
-        });
-
         // Wait for the task to complete
         wg.await;
         println!("All done!");
@@ -49,25 +49,25 @@ Using `WaitGroup` for multiple tasks:
 ```rust
 use std::{iter::repeat_n, thread, time::Duration};
 
-use compact_waitgroup::WaitGroup;
+use compact_waitgroup::{GroupTokenFuncExt, WaitGroup};
 use futures_executor::block_on;
 
 fn main() {
+    let (wg, factory) = WaitGroup::new();
+
+    for (i, token) in repeat_n(factory.into_token(), 8).enumerate() {
+        let task = move || {
+            println!("Task {i} started");
+            // Long-running task...
+            thread::sleep(Duration::from_secs(1));
+            println!("Task {i} finished");
+        };
+        // Token will be released when the task is done
+        thread::spawn(task.release_on_return(token));
+    }
+
     block_on(async {
-        let (wg, factory) = WaitGroup::new();
-
-        for (i, token) in repeat_n(factory.into_token(), 8).enumerate() {
-            thread::spawn(move || {
-                println!("Task {i} started");
-                // Long-running task...
-                thread::sleep(Duration::from_secs(1));
-                println!("Task {i} finished");
-                // Token is dropped here, signaling completion
-                token.release();
-            });
-        }
-
-        // Wait for the task to complete
+        // Wait for the tasks to complete
         wg.await;
         println!("All done!");
     });
@@ -95,12 +95,13 @@ async fn main() {
                 // Long-running task...
                 sleep(Duration::from_secs(1)).await;
                 println!("Task {i} finished");
-            }
-            .release_on_ready(token);
-            tokio::spawn(task);
+            };
+            // Token will be released when the future is ready
+            tokio::spawn(task.release_on_ready(token));
         }
     });
 
+    // Wait for the tasks to complete
     tokio::pin!(wg);
     loop {
         tokio::select! {
