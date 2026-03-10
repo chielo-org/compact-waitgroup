@@ -3,7 +3,7 @@
 [![Crates.io](https://img.shields.io/crates/v/compact-waitgroup.svg)](https://crates.io/crates/compact-waitgroup)
 [![Docs.rs](https://img.shields.io/docsrs/compact-waitgroup.svg)](https://docs.rs/compact-waitgroup)
 [![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-informational.svg)](#license)
-[![Build status](https://github.com/ChieloNewctle/compact-waitgroup/actions/workflows/ci.yml/badge.svg)](https://github.com/ChieloNewctle/compact-waitgroup/actions)
+[![Build status](https://github.com/chielo-org/compact-waitgroup/actions/workflows/ci.yml/badge.svg)](https://github.com/chielo-org/compact-waitgroup/actions)
 
 A compact asynchronous `WaitGroup` synchronization primitive.
 
@@ -131,7 +131,7 @@ counter.
 ## License
 
 - &copy; 2026 Chielo Newctle
-  \<[ChieloNewctle@gmail.com](mailto:ChieloNewctle@gmail.com)\>
+  \<[chielo@chielo.org](mailto:chielo@chielo.org)\>
 
 Licensed under either of
 

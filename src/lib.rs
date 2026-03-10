@@ -53,10 +53,9 @@
 //! ## With `async` Runtime
 //!
 //! ```rust
+//! use compact_waitgroup::{GroupTokenExt, WaitGroup};
 //! # let spawn = |_| {};
 //! # let sleep = |_| async {};
-//!
-//! use compact_waitgroup::{GroupTokenExt, WaitGroup};
 //!
 //! let (wg, factory) = WaitGroup::new();
 //!
