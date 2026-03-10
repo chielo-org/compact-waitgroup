@@ -2,6 +2,7 @@
 name = "compact-waitgroup"
 version = "0.3.1"
 edition = "2024"
+rust-version = "1.88"
 description = "A compact asynchronous WaitGroup synchronization primitive."
 keywords = ["sync", "async", "waitgroup", "wake", "notify"]
 categories = ["concurrency", "asynchronous", "no-std"]
