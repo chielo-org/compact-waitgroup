@@ -20,11 +20,11 @@ compact-mono = []
 [dependencies]
 derive_more = { version = "2.1.1", default-features = false, features = ["constructor", "debug", "deref", "into"] }
 pin-project-lite = { version = "0.2.17", default-features = false }
-portable-atomic = { version = "1.13.1", default-features = false, optional = true }
+portable-atomic = { version = "1.14.0", default-features = false, optional = true }
 
 [dev-dependencies]
-futures-executor = "0.3.32"
-futures-test = "0.3.32"
+futures-executor = "0.3.33"
+futures-test = "0.3.33"
 static_assertions = "1.1.0"
 
 [lints.rust]

@@ -130,8 +130,7 @@ counter.
 
 ## License
 
-- &copy; 2026 Chielo Newctle
-  \<[chielo@chielo.org](mailto:chielo@chielo.org)\>
+- &copy; 2026 Chielo \<[mail@chielo.org](mailto:mail@chielo.org)\>
 
 Licensed under either of
 
