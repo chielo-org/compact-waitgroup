@@ -1,12 +1,10 @@
 //! Adapted from `alloc::sync::Arc`.
 
-use core::{
-    borrow::Borrow,
-    fmt::Debug,
-    ops::Deref,
-    panic::{RefUnwindSafe, UnwindSafe},
-    ptr::NonNull,
-};
+use core::borrow::Borrow;
+use core::fmt::Debug;
+use core::ops::Deref;
+use core::panic::{RefUnwindSafe, UnwindSafe};
+use core::ptr::NonNull;
 
 use alloc::boxed::Box;
 use derive_more::Deref;

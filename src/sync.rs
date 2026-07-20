@@ -1,7 +1,5 @@
-use core::{
-    pin::Pin,
-    task::{Context, Poll, Waker},
-};
+use core::pin::Pin;
+use core::task::{Context, Poll, Waker};
 
 use derive_more::{Constructor, Deref};
 

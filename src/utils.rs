@@ -6,7 +6,8 @@ pub use loom::sync::atomic::{self as _atomic, AtomicU8, AtomicUsize};
 pub use portable_atomic::{self as _atomic, AtomicU8, AtomicUsize};
 
 pub mod atomic {
-    pub use super::_atomic::{Ordering::*, fence};
+    pub use super::_atomic::Ordering::*;
+    pub use super::_atomic::fence;
 }
 
 #[cfg(not(loom))]

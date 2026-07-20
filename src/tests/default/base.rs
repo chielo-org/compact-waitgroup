@@ -1,7 +1,5 @@
-use core::{
-    pin::Pin,
-    task::{Context, Poll},
-};
+use core::pin::Pin;
+use core::task::{Context, Poll};
 
 use futures_test::task::new_count_waker;
 

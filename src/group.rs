@@ -1,15 +1,11 @@
-use core::{
-    pin::Pin,
-    task::{Context, Poll},
-};
+use core::pin::Pin;
+use core::task::{Context, Poll};
 
 use derive_more::{Debug, Into};
 
-use crate::{
-    layout::SharedLayout,
-    sync::{WaitGroupLayoutExt, WaitGroupWrapper},
-    twin_ref::{ClonableTwinRef, TwinRef},
-};
+use crate::layout::SharedLayout;
+use crate::sync::{WaitGroupLayoutExt, WaitGroupWrapper};
+use crate::twin_ref::{ClonableTwinRef, TwinRef};
 
 #[cfg(feature = "compact-mono")]
 type MonoLayout = crate::layout::MonoLayout;

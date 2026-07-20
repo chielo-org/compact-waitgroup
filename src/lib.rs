@@ -103,10 +103,10 @@ mod sync;
 mod twin_ref;
 mod utils;
 
-pub use crate::{
-    ext::{GroupTokenExt, GroupTokenFuncExt, GroupTokenReleaseOnDrop, GroupTokenReleaseOnReady},
-    group::{GroupToken, GroupTokenFactory, MonoGroupToken, MonoWaitGroup, WaitGroup},
+pub use crate::ext::{
+    GroupTokenExt, GroupTokenFuncExt, GroupTokenReleaseOnDrop, GroupTokenReleaseOnReady,
 };
+pub use crate::group::{GroupToken, GroupTokenFactory, MonoGroupToken, MonoWaitGroup, WaitGroup};
 
 #[cfg(test)]
 mod tests;

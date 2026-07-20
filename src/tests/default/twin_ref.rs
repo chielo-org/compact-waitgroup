@@ -1,9 +1,7 @@
 use derive_more::Deref;
 
-use crate::{
-    twin_ref::{ClonableTwinRefLayout, TwinRef, TwinRefLayout},
-    utils::*,
-};
+use crate::twin_ref::{ClonableTwinRefLayout, TwinRef, TwinRefLayout};
+use crate::utils::*;
 
 struct Canary {
     twin_count: AtomicU8,
