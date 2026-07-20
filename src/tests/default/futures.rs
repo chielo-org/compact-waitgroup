@@ -2,10 +2,8 @@ use core::pin::Pin;
 
 use alloc::boxed::Box;
 
-use crate::{
-    GroupTokenExt, MonoWaitGroup, WaitGroup,
-    tests::utils::{Arc, FutureTestExt, SharedData},
-};
+use crate::tests::utils::{Arc, FutureTestExt, SharedData};
+use crate::{GroupTokenExt, MonoWaitGroup, WaitGroup};
 
 #[cfg_attr(not(loom), futures_test::test)]
 pub async fn test_wg_await_background() {

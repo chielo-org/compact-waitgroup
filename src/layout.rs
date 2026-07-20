@@ -1,15 +1,11 @@
-use core::{
-    borrow::Borrow,
-    panic::{RefUnwindSafe, UnwindSafe},
-};
+use core::borrow::Borrow;
+use core::panic::{RefUnwindSafe, UnwindSafe};
 
 use derive_more::Deref;
 
-use crate::{
-    sync::{WaitGroupData, WaitGroupLayout, WaitGroupLayoutExt},
-    twin_ref::{ClonableTwinRefLayout, TwinRef, TwinRefLayout},
-    utils::*,
-};
+use crate::sync::{WaitGroupData, WaitGroupLayout, WaitGroupLayoutExt};
+use crate::twin_ref::{ClonableTwinRefLayout, TwinRef, TwinRefLayout};
+use crate::utils::*;
 
 #[derive(Debug)]
 pub(crate) struct MonoLayout {

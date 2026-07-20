@@ -1,12 +1,11 @@
-use core::{
-    pin::Pin,
-    task::{Context, Poll},
-};
+use core::pin::Pin;
+use core::task::{Context, Poll};
 
 use derive_more::Into;
 use pin_project_lite::pin_project;
 
-use crate::{GroupToken, MonoGroupToken, group::GroupTokenFactory};
+use crate::group::GroupTokenFactory;
+use crate::{GroupToken, MonoGroupToken};
 
 /// Extension trait for futures to automatically release group tokens.
 pub trait GroupTokenExt<T>: Sized {
