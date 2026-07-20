@@ -1,7 +1,9 @@
 name: Release-plz
 
 on:
-  push:
+  workflow_run:
+    workflows: [Cargo Build & Test]
+    types: [completed]
     branches: [main]
 
 jobs:
@@ -11,6 +13,7 @@ jobs:
     if: ${{ github.repository_owner == 'chielo-org' }}
     permissions:
       contents: write
+      pull-requests: read
     steps:
       - &checkout
         name: Checkout repository
