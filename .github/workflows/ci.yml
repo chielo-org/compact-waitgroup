@@ -1,4 +1,4 @@
-name: Cargo Build & Test
+name: CI
 
 on:
   push:
@@ -6,43 +6,48 @@ on:
       - main
     tags:
       - "*"
-  workflow_dispatch:
   pull_request:
-    types: [opened, synchronize, reopened, assigned]
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
 
+permissions:
+  contents: read
+
 jobs:
-  rustfmt:
-    name: Check Format
+  style:
+    name: Style
     runs-on: ubuntu-latest
     steps:
       - &checkout
         name: Checkout repository
         uses: actions/checkout@v7
         with:
-          fetch-depth: 0
           persist-credentials: false
-      - run: |
-          rustup update nightly && rustup default nightly
-          rustup component add rustfmt clippy
-      - run: |
-          cargo clippy --all-targets -- -D warnings
-          RUSTFLAGS="--cfg loom" cargo clippy --all-targets -- -D warnings
-          cargo fmt --all --check -- --config \
-            "format_code_in_doc_comments=true,wrap_comments=true"
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt, clippy
+      - name: Clippy
+        run: cargo clippy --all-targets -- -D warnings
+      - name: Rustfmt
+        run: cargo fmt --all --check
 
   docs:
-    name: Docs
+    name: Documentation
     runs-on: ubuntu-latest
     steps:
       - *checkout
-      - run: rustup update nightly && rustup default nightly
-      - run: cargo doc --all-features --no-deps
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+      - name: Build documentation
+        run: cargo doc --all-features --no-deps
+        env:
+          RUSTDOCFLAGS: --cfg doc_cfg
 
-  build-and-test:
-    name: Build & Test
+  tests:
+    name: Tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -54,11 +59,12 @@ jobs:
           - nightly
     steps:
       - *checkout
-      - name: Prepare
-        run: |
-          rustup update ${{ matrix.toolchain }}
-          rustup default ${{ matrix.toolchain }}
-          cargo install cargo-all-features
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+      - name: Install cargo-all-features
+        run: cargo install cargo-all-features
       - run: cargo build --verbose
       - run: cargo test --verbose
       - name: All-features Test
@@ -97,14 +103,20 @@ jobs:
           cargo test --lib --tests --release
           cargo test -F compact-mono --lib --tests --release
 
-  test-on-multi-platforms:
-    name: Test on Multiple Platforms
+  tests-on-multi-platforms:
+    name: Tests on Multiple Platforms
     strategy:
       fail-fast: false
       matrix:
         include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
           - os: ubuntu-24.04-arm
             target: aarch64-unknown-linux-gnu
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-musl
           - os: macos-latest
             target: aarch64-apple-darwin
           - os: windows-latest
@@ -114,33 +126,31 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - *checkout
-      - name: Prepare
-        run: |
-          rustup update stable
-          rustup default stable
-          cargo install cargo-all-features
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - name: Install cargo-all-features
+        run: cargo install cargo-all-features
       - name: All-features Test
         run: |
           cargo all-features test --target ${{ matrix.target }}
           cargo all-features test --target ${{ matrix.target }} --release
 
   dependabot:
-    name: Dependabot Auto-merge
-    if: ${{ github.actor == 'dependabot[bot]' && github.event_name == 'pull_request'}}
-    needs: [build-and-test, rustfmt, docs, test-on-multi-platforms]
+    name: Dependabot auto-merge
+    if: github.actor == 'dependabot[bot]' && github.event_name == 'pull_request'
+    needs: [style, docs, tests, tests-on-multi-platforms]
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
       contents: write
       actions: write
     steps:
-      - id: metadata
-        uses: dependabot/fetch-metadata@v3
-        with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
-      - run: |
+      - name: Approve and merge
+        run: |
           gh pr review --approve "$PR_URL"
           gh pr merge --squash --auto "$PR_URL"
         env:
-          PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
