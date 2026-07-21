@@ -39,6 +39,7 @@ trait GroupTokenType: Sync + Send + 'static {}
 impl GroupTokenType for GroupTokenFactory {}
 impl GroupTokenType for GroupToken {}
 impl GroupTokenType for MonoGroupToken {}
+impl<T: GroupTokenType> GroupTokenType for Option<T> {}
 
 impl<T: GroupTokenType, F: Future> GroupTokenExt<T> for F {}
 
