@@ -11,7 +11,7 @@ homepage = "https://github.com/chielo-org/compact-waitgroup"
 repository = "https://github.com/chielo-org/compact-waitgroup"
 documentation = "https://docs.rs/compact-waitgroup"
 readme = "README.md"
-exclude = ["release-plz.toml", "rustfmt.toml", "clippy.toml", ".github"]
+exclude = ["release-plz.toml", ".github"]
 
 [features]
 portable-atomic = ["dep:portable-atomic"]
