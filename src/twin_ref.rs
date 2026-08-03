@@ -157,6 +157,7 @@ impl<T: TwinRefLayout + ClonableTwinRefLayout> Drop for ClonableTwinRef<T> {
 
 impl<T: TwinRefLayout + ClonableTwinRefLayout> Clone for ClonableTwinRef<T> {
     #[inline]
+    #[expect(clippy::panic, reason = "panic when reference count overflows")]
     fn clone(&self) -> Self {
         // Using a relaxed ordering is alright here, as knowledge of the
         // original reference prevents other threads from erroneously deleting

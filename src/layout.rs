@@ -3,7 +3,7 @@ use core::panic::{RefUnwindSafe, UnwindSafe};
 
 use derive_more::Deref;
 
-use crate::sync::{WaitGroupData, WaitGroupLayout, WaitGroupLayoutExt};
+use crate::sync::{WaitGroupData, WaitGroupLayout, WaitGroupLayoutExt as _};
 use crate::twin_ref::{ClonableTwinRefLayout, TwinRef, TwinRefLayout};
 use crate::utils::*;
 

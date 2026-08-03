@@ -4,8 +4,8 @@ use core::pin::Pin;
 
 use alloc::boxed::Box;
 
-use crate::tests::utils::{Arc, FutureTestExt, SharedData};
-use crate::{GroupTokenExt, MonoWaitGroup, WaitGroup};
+use crate::tests::utils::{Arc, FutureTestExt as _, SharedData};
+use crate::{GroupTokenExt as _, MonoWaitGroup, WaitGroup};
 
 #[futures_test::test]
 #[cfg(panic = "unwind")]

@@ -1,7 +1,7 @@
 use crate::{MonoWaitGroup, WaitGroup};
 
 #[cfg_attr(not(loom), test, should_panic)]
-#[allow(unreachable_code)]
+#[allow(unreachable_code, reason = "should panic")]
 pub fn test_wg_panic_both() {
     let (_wg, _token) = WaitGroup::new();
     panic!();
@@ -9,7 +9,7 @@ pub fn test_wg_panic_both() {
 }
 
 #[cfg_attr(not(loom), test, should_panic)]
-#[allow(unreachable_code)]
+#[allow(unreachable_code, reason = "should panic")]
 pub fn test_wg_panic_wg() {
     let (_wg, token) = WaitGroup::new();
     drop(token);
@@ -18,7 +18,7 @@ pub fn test_wg_panic_wg() {
 }
 
 #[cfg_attr(not(loom), test, should_panic)]
-#[allow(unreachable_code)]
+#[allow(unreachable_code, reason = "should panic")]
 pub fn test_wg_panic_handle() {
     let (wg, _token) = WaitGroup::new();
     drop(wg);
@@ -27,7 +27,7 @@ pub fn test_wg_panic_handle() {
 }
 
 #[cfg_attr(not(loom), test, should_panic)]
-#[allow(unreachable_code)]
+#[allow(unreachable_code, reason = "should panic")]
 pub fn test_mono_wg_panic_both() {
     let (_wg, _token) = MonoWaitGroup::new();
     panic!();
@@ -35,7 +35,7 @@ pub fn test_mono_wg_panic_both() {
 }
 
 #[cfg_attr(not(loom), test, should_panic)]
-#[allow(unreachable_code)]
+#[allow(unreachable_code, reason = "should panic")]
 pub fn test_mono_wg_panic_wg() {
     let (_wg, token) = MonoWaitGroup::new();
     drop(token);
@@ -44,7 +44,7 @@ pub fn test_mono_wg_panic_wg() {
 }
 
 #[cfg_attr(not(loom), test, should_panic)]
-#[allow(unreachable_code)]
+#[allow(unreachable_code, reason = "should panic")]
 pub fn test_mono_wg_panic_handle() {
     let (wg, _token) = MonoWaitGroup::new();
     drop(wg);
