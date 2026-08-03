@@ -49,15 +49,14 @@ unsafe fn with_slot_mut<T: WaitGroupLayout, R, F: FnOnce(&mut WaitGroupData) -> 
     val: &T,
     f: F,
 ) -> R {
+    let slot = unsafe { val.slot() };
     #[cfg(not(loom))]
     {
-        f(unsafe { &mut *val.slot().get() })
+        f(unsafe { &mut *slot.get() })
     }
     #[cfg(loom)]
     {
-        unsafe { val.slot() }
-            .get()
-            .with(|ptr| f(unsafe { &mut *ptr.cast_mut() }))
+        slot.get().with(|ptr| f(unsafe { &mut *ptr.cast_mut() }))
     }
 }
 
@@ -117,6 +116,7 @@ struct UnlockGuard<'a>(&'a AtomicU8);
 
 impl<'a> UnlockGuard<'a> {
     #[inline]
+    #[expect(clippy::mem_forget, reason = "skip drop")]
     fn defuse(self) {
         core::mem::forget(self);
     }

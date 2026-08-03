@@ -11,7 +11,7 @@ homepage = "https://github.com/chielo-org/compact-waitgroup"
 repository = "https://github.com/chielo-org/compact-waitgroup"
 documentation = "https://docs.rs/compact-waitgroup"
 readme = "README.md"
-exclude = ["release-plz.toml", "rustfmt.toml", ".github"]
+exclude = ["release-plz.toml", "rustfmt.toml", "clippy.toml", ".github"]
 
 [features]
 portable-atomic = ["dep:portable-atomic"]
@@ -27,8 +27,48 @@ futures-executor = "0.3.33"
 futures-test = "0.3.33"
 static_assertions = "1.1.0"
 
+[target.'cfg(loom)'.dependencies]
+loom = { version = "0.7.2", features = ["futures"] }
+
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(loom)', 'cfg(tsan)'] }
 
-[target.'cfg(loom)'.dependencies]
-loom = { version = "0.7.2", features = ["futures"] }
+[lints.clippy]
+unused_trait_names = "warn"
+missing_inline_in_public_items = "warn"
+string_slice = "warn"
+indexing_slicing = "warn"
+unwrap_used = "warn"
+panic = "warn"
+todo = "warn"
+unimplemented = "warn"
+unreachable = "warn"
+get_unwrap = "warn"
+unwrap_in_result = "warn"
+unchecked_time_subtraction = "warn"
+panic_in_result_fn = "warn"
+expect_used = "warn"
+let_underscore_future = "warn"
+let_underscore_must_use = "warn"
+unused_result_ok = "warn"
+map_err_ignore = "warn"
+assertions_on_result_states = "warn"
+await_holding_lock = "warn"
+await_holding_refcell_ref = "warn"
+large_futures = "warn"
+mem_forget = "warn"
+multiple_unsafe_ops_per_block = "warn"
+unnecessary_safety_doc = "warn"
+unnecessary_safety_comment = "warn"
+float_cmp = "warn"
+float_cmp_const = "warn"
+lossy_float_literal = "warn"
+cast_sign_loss = "warn"
+invalid_upcast_comparisons = "warn"
+rc_mutex = "warn"
+debug_assert_with_mut_call = "warn"
+iter_not_returning_iterator = "warn"
+expl_impl_clone_on_copy = "warn"
+infallible_try_from = "warn"
+dbg_macro = "warn"
+allow_attributes_without_reason = "warn"

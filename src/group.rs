@@ -4,7 +4,7 @@ use core::task::{Context, Poll};
 use derive_more::{Debug, Into};
 
 use crate::layout::SharedLayout;
-use crate::sync::{WaitGroupLayoutExt, WaitGroupWrapper};
+use crate::sync::{WaitGroupLayoutExt as _, WaitGroupWrapper};
 use crate::twin_ref::{ClonableTwinRef, TwinRef};
 
 #[cfg(feature = "compact-mono")]
@@ -83,7 +83,7 @@ pub struct MonoWaitGroup(#[debug("done: {}", _0.is_done())] WaitGroupWrapper<Twi
 #[must_use]
 #[derive(Clone, Debug)]
 pub struct GroupToken(
-    #[allow(unused)]
+    #[allow(unused, reason = "used for dropping")]
     #[debug("done: {}", _0.is_done())]
     ClonableTwinRef<SharedLayout>,
 );
@@ -105,6 +105,7 @@ pub struct GroupTokenFactory(GroupToken);
 
 impl WaitGroup {
     /// Creates a new `WaitGroup` and a [`GroupTokenFactory`].
+    #[inline]
     pub fn new() -> (Self, GroupTokenFactory) {
         let inner = SharedLayout::new();
         let (wg, token) = TwinRef::new_clonable(inner);
@@ -125,6 +126,7 @@ impl WaitGroup {
 
 impl MonoWaitGroup {
     /// Creates a new `MonoWaitGroup` and a single [`MonoGroupToken`].
+    #[inline]
     pub fn new() -> (Self, MonoGroupToken) {
         let inner = MonoLayout::new();
         let (wg, token) = TwinRef::new_mono(inner);

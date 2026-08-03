@@ -30,9 +30,13 @@ jobs:
         with:
           components: rustfmt, clippy
       - name: Clippy
-        run: cargo clippy --all-targets -- -D warnings
+        run: |
+          cargo clippy --all-targets -- -D warnings
+          RUSTFLAGS="--cfg loom" cargo clippy --all-targets -- -D warnings
       - name: Rustfmt
-        run: cargo fmt --all --check
+        run: |
+          cargo fmt --all --check
+          RUSTFLAGS="--cfg loom" cargo fmt --all --check
 
   docs:
     name: Documentation
